@@ -69,7 +69,7 @@ const CustomizedProducts = ({
 
               return option.name === "Color" ? (
                 <li
-                  key={option.name}
+                  key={`${option.name}-${choice.value}`}
                   className="w-8 h-8 rounded-full ring-1 ring-gray-200 relative transition-all duration-500"
                   style={{
                     backgroundColor: choice.value,
@@ -89,7 +89,7 @@ const CustomizedProducts = ({
                   )}
                 </li>
               ) : (
-                <li>
+                <li key={`${option.name}-${choice.description}`}>
                   <Button
                     variant={"outline"}
                     style={{

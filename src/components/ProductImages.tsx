@@ -15,10 +15,10 @@ const ProductImages = ({ items }: { items: any }) => {
           sizes="50vw"
         />
       </div>
-      <div className="flex justify-between gap-4 mt-8">
+      <div className="grid grid-cols-3 gap-4 mt-8">
         {items.map((item: any, i: number) => (
           <div
-            className="w-1/4 h-32 relative gap-4 cursor-pointer"
+            className="h-32 relative gap-4 cursor-pointer"
             key={item._id}
             onClick={() => setIndex(i)}
           >
@@ -27,7 +27,6 @@ const ProductImages = ({ items }: { items: any }) => {
               alt=""
               fill
               className="object-cover rounded-md"
-              sizes="30vw"
             />
           </div>
         ))}

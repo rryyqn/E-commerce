@@ -12,7 +12,10 @@ const Footer = () => {
         {/* LEFT */}
         <div className="w-full md:w-1/2 lg:w-1/4 flex flex-col gap-4 p-4">
           <Link href="/">
-            <div className="text-2xl tracking-wide">LAMA</div>
+            <div className="text-2xl tracking-wide flex items-center gap-3">
+              <Image src="/logo.png" alt="logo" width={24} height={24} />
+              LAMA
+            </div>
           </Link>
           <p className="text-gray-600">
             America&apos;s leading fashion and home decor retailer
@@ -47,7 +50,7 @@ const Footer = () => {
               <Link href="/">Accessories</Link>
               <Link href="/">Men</Link>
               <Link href="/">Women</Link>
-              <Link href="/">All Products</Link>
+              <Link href="/list">All Products</Link>
             </div>
           </div>
           <div className="flex flex-col gap-4">

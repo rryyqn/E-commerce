@@ -46,8 +46,8 @@ const Add = ({
             </button>
           </div>
           <div className="text-sm">
-            {stockNumber >= 20 ? (
-              <p>{stockNumber} in stock</p>
+            {stockNumber < 0 ? (
+              <p>Out of stock.</p>
             ) : (
               stockNumber > 0 &&
               stockNumber <= 10 &&
