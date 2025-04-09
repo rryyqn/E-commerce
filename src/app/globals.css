@@ -77,9 +77,18 @@
   background: #ff8aa1a4;
 }
 
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
+.horizontal-scrollbar::-webkit-scrollbar-track {
+  outline: 1px solid #e2e2e2;
+  border-radius: 2px;
+  background-color: white;
 }
-.scrollbar-hide {
-  scrollbar-width: none;
+
+.horizontal-scrollbar::-webkit-scrollbar {
+  background-color: #f5f5f5;
+  width: 1px;
+}
+
+.horizontal-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 2px;
+  background-color: #eeeeee;
 }

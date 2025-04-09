@@ -1,15 +1,17 @@
 "use client";
 import { TrashIcon, X } from "lucide-react";
 import Image from "next/image";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button } from "./ui/button";
 import { CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Separator } from "./ui/separator";
 import { useCartStore } from "@/hooks/useCartStore";
 import { media as wixMedia } from "@wix/sdk";
 import { useWixClient } from "@/hooks/useWixClient";
+import { useRouter } from "next/navigation";
 
 const CartModal = () => {
+  const router = useRouter();
   const wixClient = useWixClient();
   const { cart, isLoading, removeItem } = useCartStore();
 
@@ -26,6 +28,11 @@ const CartModal = () => {
       setQuantity((prev) => prev + 1);
     }
   };
+
+  const handleCheckout = () => {
+    router.push("/checkout");
+  };
+
   return (
     <div className="w-max rounded-md bg-white top-12 right-0 flex flex-col gap-6">
       <CardHeader>
@@ -132,7 +139,8 @@ const CartModal = () => {
 
             <Button
               className="bg-lama text-white hover:bg-white hover:ring-2 hover:ring-lama hover:text-lama transition-all disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={isLoading}
+              disabled={isLoading || cart?.lineItems?.length === 0}
+              onClick={handleCheckout}
             >
               Checkout
             </Button>

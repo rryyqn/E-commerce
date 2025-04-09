@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import { Button } from "./ui/button";
 import { wixClientServer } from "@/lib/wixClientServer";
 import { products } from "@wix/stores";
 import DOMPurify from "isomorphic-dompurify";
@@ -51,6 +50,11 @@ const ProductList = async ({
 
   return (
     <div className="mt-12">
+      {res.items.length === 0 && (
+        <h1 className="flex justify-center font-semibold text-xl">
+          No products found
+        </h1>
+      )}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
         {res.items.map((product: products.Product) => (
           <Link
@@ -84,17 +88,10 @@ const ProductList = async ({
               <div
                 className="text-sm text-gray-500 line-clamp-2"
                 dangerouslySetInnerHTML={{
-                  __html: DOMPurify.sanitize(
-                    product.additionalInfoSections?.find(
-                      (section: any) => section.title === "shortDesc"
-                    )?.description || ""
-                  ),
+                  __html: DOMPurify.sanitize(product.description || ""),
                 }}
               ></div>
             )}
-            <Button className="ring-lama ring-2 rounded-full text-lama bg-transparent hover:bg-lama hover:text-white w-max">
-              Add to Cart
-            </Button>
           </Link>
         ))}
       </div>

@@ -2,21 +2,18 @@ import { wixClientServer } from "@/lib/wixClientServer";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import { Button } from "./ui/button";
 
 const CategoryList = async () => {
   const wixClient = await wixClientServer();
   const cats = await wixClient.collections.queryCollections().find();
 
   return (
-    <div className="overflow-x-scroll scrollbar-hide">
-      <div className="flex gap-4 md:gap-8">
-        {cats.items.map((item) => (
-          <Link
-            href={`/list?cat=${item.slug}`}
-            className="flex-shrink-0 w-full sm:w-1/2 lg:w-1/4 xl:w-1/6"
-            key={item._id}
-          >
-            <div className="relative bg-slate-100 w-full h-96">
+    <div className="">
+      <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 md:gap-8 mb-8">
+        {cats.items.slice(0, 4).map((item) => (
+          <Link href={`/list?cat=${item.slug}`} className="" key={item._id}>
+            <div className="relative bg-slate-100 w-full h-60">
               <Image
                 src={item.media?.mainMedia?.image?.url || "/cat.png"}
                 alt=""
@@ -25,9 +22,7 @@ const CategoryList = async () => {
                 className="object-cover"
               />
             </div>
-            <h1 className="mt-8 font-light text-xl tracking-wide">
-              {item.name}
-            </h1>
+            <h1 className="mt-3 text-xl">{item.name}</h1>
           </Link>
         ))}
       </div>

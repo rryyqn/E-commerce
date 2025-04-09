@@ -17,6 +17,26 @@ const CustomizedProducts = ({
     [key: string]: string;
   }>({});
   const [selectedVariant, setSelectedVariant] = useState<products.Variant>();
+
+  // Set default selections when component mounts
+  useEffect(() => {
+    if (variants.length > 0 && Object.keys(selectedOptions).length === 0) {
+      // Find first in-stock variant
+      const defaultVariant =
+        variants.find(
+          (v) => v.stock?.inStock && v.stock?.quantity && v.stock?.quantity > 0
+        ) || variants[0]; // Fallback to first variant if none in stock
+
+      if (defaultVariant && defaultVariant.choices) {
+        // Set selected variant
+        setSelectedVariant(defaultVariant);
+
+        // Set selected options based on the default variant
+        setSelectedOptions(defaultVariant.choices);
+      }
+    }
+  }, [variants, selectedOptions]);
+
   useEffect(() => {
     const variant = variants.find((v) => {
       const variantChoices = v.choices;
