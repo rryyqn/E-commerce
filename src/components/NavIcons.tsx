@@ -5,15 +5,30 @@ import React, { useState } from "react";
 import CartModal from "./CartModal";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
+import { useRouter } from "next/navigation";
+import { useWixClient } from "@/hooks/useWixClient";
 
 const NavIcons = () => {
   const [profileOpen, setProfileOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
-
-  const isLoggedIn = false; //TEMP
+  const wixClient = useWixClient();
+  const router = useRouter();
+  const isLoggedIn = wixClient.auth.loggedIn();
 
   const handleProfile = () => {
     setProfileOpen(!profileOpen);
+  };
+  const handleLogin = () => {
+    router.push("/login");
+  };
+  //Wix managed auth
+  const login = async () => {
+    const loginRequestData = wixClient.auth.generateOAuthData(
+      "http://localhost:3000"
+    );
+    localStorage.setItem("oAuthRedirectData", JSON.stringify(loginRequestData));
+    const { authUrl } = await wixClient.auth.getAuthUrl(loginRequestData);
+    window.location.href = authUrl;
   };
 
   return (
