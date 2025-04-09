@@ -21,8 +21,6 @@ const LoginPage = () => {
   const router = useRouter();
   const isLoggedIn = wixClient.auth.loggedIn();
 
-  console.log(isLoggedIn);
-
   if (isLoggedIn) {
     router.push("/");
   }
@@ -36,7 +34,7 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  const [btnMessage, setBtnMessage] = useState("");
+  const [btnMessage, setBtnMessage] = useState("Login");
 
   const formTitle =
     mode === MODE.LOGIN
@@ -54,6 +52,16 @@ const LoginPage = () => {
       : mode === MODE.RESET_PASSWORD
       ? "Reset"
       : "Verify";
+
+  const clearMessages = () => {
+    setError("");
+    setMessage("");
+  };
+
+  React.useEffect(() => {
+    setBtnMessage(buttonTitle);
+  }, [mode, buttonTitle]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -82,11 +90,13 @@ const LoginPage = () => {
             email,
             window.location.href
           );
+          setMessage("Password reset email sent. Please check your email.");
           break;
         case MODE.EMAIL_VERIFICATION:
           response = await wixClient.auth.processVerification({
             verificationCode: emailCode,
           });
+
         default:
           break;
       }
@@ -94,7 +104,6 @@ const LoginPage = () => {
 
       switch (response?.loginState) {
         case LoginState.SUCCESS:
-          setMessage("Logging in...");
           setBtnMessage("Logging In...");
           const tokens = await wixClient.auth.getMemberTokensForDirectLogin(
             response.data.sessionToken
@@ -105,6 +114,29 @@ const LoginPage = () => {
           wixClient.auth.setTokens(tokens);
           router.push("/");
 
+          break;
+        case LoginState.FAILURE:
+          if (
+            response.errorCode === "invalidEmail" ||
+            response.errorCode === "invalidPassword"
+          ) {
+            setError("Invalid Email or Password.");
+          } else if (response.errorCode == "emailAlreadyExists") {
+            setError("This email is already in use.");
+          } else if (response.errorCode == "resetPassword") {
+            setError("Reset your password.");
+          } else
+            setError(
+              "Something went wrong. Please try again or contact support."
+            );
+          break;
+
+        case LoginState.EMAIL_VERIFICATION_REQUIRED:
+          setMode(MODE.EMAIL_VERIFICATION);
+          break;
+
+        case LoginState.OWNER_APPROVAL_REQUIRED:
+          setMessage("Your account is pending approval.");
           break;
 
         default:
@@ -172,23 +204,29 @@ const LoginPage = () => {
         {mode === MODE.LOGIN && (
           <div
             className="text-sm text-gray-700 cursor-pointer"
-            onClick={() => setMode(MODE.RESET_PASSWORD)}
+            onClick={() => {
+              setMode(MODE.RESET_PASSWORD);
+              clearMessages();
+            }}
           >
             Forgot Password?
           </div>
         )}
+        {error && <div className="text-red-600 text-sm">{error}</div>}
         <Button
-          className="bg-lama text-white p-2 rounded-md disabled:bg-pink-300 disabled:cursor-not-allowed hover:bg-transparent hover:text-lama hover:ring-2 ring-lama transition-all"
+          className="bg-lama text-white p-2 rounded-md disabled:bg-pink-400 disabled:cursor-not-allowed hover:bg-transparent hover:text-lama hover:ring-2 ring-lama transition-all"
           disabled={isLoading}
         >
           {btnMessage ? btnMessage : buttonTitle}
         </Button>
-        {error && <div className="text-red-600">{error}</div>}
-        {message && <div className="text-green-600 text-sm">{message}</div>}
+        {message && <div className="text-gray-700 text-sm">{message}</div>}
         {mode === MODE.LOGIN && (
           <div
             className="text-sm text-gray-700 cursor-pointer"
-            onClick={() => setMode(MODE.REGISTER)}
+            onClick={() => {
+              setMode(MODE.REGISTER);
+              clearMessages();
+            }}
           >
             Don&apos;t Have an Account? Register
           </div>
@@ -196,7 +234,10 @@ const LoginPage = () => {
         {mode === MODE.REGISTER && (
           <div
             className="text-sm text-gray-700 cursor-pointer"
-            onClick={() => setMode(MODE.LOGIN)}
+            onClick={() => {
+              setMode(MODE.LOGIN);
+              clearMessages();
+            }}
           >
             Already Have an Account? Login
           </div>
@@ -204,7 +245,10 @@ const LoginPage = () => {
         {mode === MODE.RESET_PASSWORD && (
           <div
             className="text-sm text-gray-700 cursor-pointer"
-            onClick={() => setMode(MODE.LOGIN)}
+            onClick={() => {
+              setMode(MODE.LOGIN);
+              clearMessages();
+            }}
           >
             Return to Login
           </div>

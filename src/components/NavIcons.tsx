@@ -1,19 +1,31 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CartModal from "./CartModal";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useWixClient } from "@/hooks/useWixClient";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
+import Cookies from "js-cookie";
+import { useCartStore } from "@/hooks/useCartStore";
 
 const NavIcons = () => {
   const [profileOpen, setProfileOpen] = useState(false);
-  const [cartOpen, setCartOpen] = useState(false);
-  const wixClient = useWixClient();
+  const [loginStatus, setLoginStatus] = useState(false);
+
   const router = useRouter();
-  const isLoggedIn = wixClient.auth.loggedIn();
+  const pathname = usePathname();
+  const wixClient = useWixClient();
+
+  useEffect(() => {
+    const checkLoginStatus = () => {
+      setLoginStatus(wixClient.auth.loggedIn());
+    };
+
+    checkLoginStatus();
+  }, [wixClient, pathname]);
 
   const handleProfile = () => {
     setProfileOpen(!profileOpen);
@@ -21,50 +33,60 @@ const NavIcons = () => {
   const handleLogin = () => {
     router.push("/login");
   };
-  //Wix managed auth
-  const login = async () => {
-    const loginRequestData = wixClient.auth.generateOAuthData(
-      "http://localhost:3000"
-    );
-    localStorage.setItem("oAuthRedirectData", JSON.stringify(loginRequestData));
-    const { authUrl } = await wixClient.auth.getAuthUrl(loginRequestData);
-    window.location.href = authUrl;
+
+  const handleLogout = async () => {
+    Cookies.remove("refreshToken");
+    const { logoutUrl } = await wixClient.auth.logout(window.location.href);
+    router.push(logoutUrl);
   };
+  const { cart, counter, getCart } = useCartStore();
+  useEffect(() => {
+    getCart(wixClient);
+  }, [wixClient, getCart]);
+
+  console.log(cart);
 
   return (
-    <div className="flex items-center gap-4 xl:gap-6 relative">
-      <Image
-        src="/profile.png"
-        alt="profile"
-        width={22}
-        height={22}
-        className="cursor-pointer"
-        onMouseOver={handleProfile}
-        onMouseOut={handleProfile}
-      />
-      {profileOpen && (
-        // <div className="absolute p-4 rounded-md top-12 left-0 text-sm border z-20">
-        //   <Link href="/">Profile</Link>
-        //   <div className="mt-2 cursor-pointer">Logout</div>
-        // </div>
-        <Card className="absolute p-4 rounded-md top-12 -left-16 text-sm border z-20 w-40">
+    <>
+      <HoverCard openDelay={100} closeDelay={100}>
+        <HoverCardTrigger>
+          <Image
+            src="/profile.png"
+            alt="profile"
+            width={22}
+            height={22}
+            className="cursor-pointer"
+          />
+        </HoverCardTrigger>
+        <HoverCardContent>
           <CardHeader>
             <CardTitle>
-              <h1 className="text-lg pb-2">
-                {isLoggedIn ? "User Settings" : "Login"}
-              </h1>
+              <h1 className="text-xl pb-2 text-center">User Settings</h1>
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <Button className="w-full justify-start" variant="ghost">
-              <Link href="/">Profile</Link>
-            </Button>
-            <Button className="w-full justify-start" variant="ghost">
-              Logout
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+          {loginStatus ? (
+            <CardContent>
+              <Button className="w-full justify-start" variant="ghost">
+                Profile
+              </Button>
+              <Button
+                className="w-full justify-start"
+                variant="ghost"
+                onClick={handleLogout}
+              >
+                Logout
+              </Button>
+            </CardContent>
+          ) : (
+            <CardContent>
+              <Button className="w-full justify-start" variant="ghost">
+                <Link href="/login">Login or Register</Link>
+              </Button>
+            </CardContent>
+          )}
+        </HoverCardContent>
+      </HoverCard>
+
       <Image
         src="/notification.png"
         alt="notification"
@@ -72,18 +94,20 @@ const NavIcons = () => {
         height={22}
         className="cursor-pointer"
       />
-      <div
-        className="relative cursor-pointer"
-        onMouseOver={() => setCartOpen(!cartOpen)}
-        onMouseOut={() => setCartOpen(!cartOpen)}
-      >
-        <Image src="/cart.png" alt="cart" width={22} height={22} />
-        <div className="absolute -top-4 -right-4 w-5 h-5 bg-lama rounded-full text-white text-sm flex items-center justify-center">
-          2
-        </div>
-      </div>
-      {cartOpen && <CartModal />}
-    </div>
+      <HoverCard openDelay={100} closeDelay={100}>
+        <HoverCardTrigger>
+          <div className="relative cursor-pointer">
+            <Image src="/cart.png" alt="cart" width={22} height={22} />
+            <div className="absolute -top-4 -right-4 w-5 h-5 bg-lama rounded-full text-white text-sm flex items-center justify-center">
+              {counter}
+            </div>
+          </div>
+        </HoverCardTrigger>
+        <HoverCardContent className="py-6 px-8">
+          <CartModal />
+        </HoverCardContent>
+      </HoverCard>
+    </>
   );
 };
 

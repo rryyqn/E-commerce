@@ -1,7 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "./ui/button";
-import { Minus, Plus } from "lucide-react";
+import { Check, Minus, Plus } from "lucide-react";
+import { useWixClient } from "@/hooks/useWixClient";
+import { useCartStore } from "@/hooks/useCartStore";
 
 const Add = ({
   productId,
@@ -13,6 +15,7 @@ const Add = ({
   stockNumber: number;
 }) => {
   const [quantity, setQuantity] = useState(1);
+  const [addedToCart, setAddedToCart] = useState(false);
 
   const handleQuantity = (type: "inc" | "dec") => {
     if (type === "dec" && quantity > 1) {
@@ -21,6 +24,19 @@ const Add = ({
     if (type === "inc" && quantity < stockNumber) {
       setQuantity((prev) => prev + 1);
     }
+  };
+  const wixClient = useWixClient();
+
+  const { addItem, isLoading } = useCartStore();
+
+  const handleAddToCart = async () => {
+    await addItem(wixClient, productId, variantId, quantity);
+    setAddedToCart(true);
+
+    // Reset after 3 seconds
+    setTimeout(() => {
+      setAddedToCart(false);
+    }, 3000);
   };
 
   return (
@@ -60,8 +76,24 @@ const Add = ({
             )}
           </div>
         </div>
-        <Button className="mt-8 h-12 text-lg font-bold ring-lama ring-2 rounded-full text-lama  bg-transparent hover:bg-lama hover:text-white w-full disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-white disabled:ring-none">
-          Add To Cart
+        <Button
+          onClick={handleAddToCart}
+          disabled={isLoading || addedToCart}
+          className={`mt-8 h-12 text-lg font-bold rounded-full w-full transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-100 ${
+            addedToCart
+              ? "bg-lama text-white ring-0"
+              : "ring-lama ring-2 text-lama bg-transparent hover:bg-lama hover:text-white"
+          }
+          `}
+        >
+          {addedToCart ? (
+            <span className="flex items-center">
+              <Check size={20} />
+              Added to Cart!
+            </span>
+          ) : (
+            "Add To Cart"
+          )}
         </Button>
       </div>
     </div>
