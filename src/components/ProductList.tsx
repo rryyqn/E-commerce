@@ -4,7 +4,6 @@ import React from "react";
 import { wixClientServer } from "@/lib/wixClientServer";
 import { products } from "@wix/stores";
 import DOMPurify from "isomorphic-dompurify";
-import Pagination from "./Pagination";
 
 // Set how many products per page you want to display.
 const productPerPage = 8;
@@ -13,12 +12,10 @@ const ProductList = async ({
   categoryId,
   limit,
   searchParams,
-  shuffle = false,
 }: {
   categoryId: string;
   limit?: number;
   searchParams?: any;
-  shuffle?: boolean;
 }) => {
   const wixClient = await wixClientServer();
 
@@ -83,28 +80,15 @@ const ProductList = async ({
     }
   }
 
-  // Shuffle if the shuffle flag is true
-  if (shuffle) {
-    filteredItems = shuffleArray(filteredItems);
-  }
-
-  // Manual pagination
-  const currentPage = searchParams?.page ? parseInt(searchParams.page) : 0;
-  const itemsPerPage = limit || productPerPage;
-  const paginatedItems = filteredItems.slice(
-    currentPage * itemsPerPage,
-    (currentPage + 1) * itemsPerPage
-  );
-
   return (
     <div className="sm:mt-12 mt-6">
-      {paginatedItems.length === 0 && (
+      {filteredItems.length === 0 && (
         <h1 className="flex justify-center font-semibold text-xl">
           No products found
         </h1>
       )}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
-        {paginatedItems.map((product: products.Product) => (
+        {filteredItems.map((product: products.Product) => (
           <Link
             href={"/" + product.slug}
             className="flex flex-col gap-4"
@@ -153,22 +137,8 @@ const ProductList = async ({
           </Link>
         ))}
       </div>
-      <Pagination
-        currentPage={currentPage}
-        hasPrev={currentPage > 0}
-        hasNext={(currentPage + 1) * itemsPerPage < filteredItems.length}
-      />
     </div>
   );
 };
-
-// Helper function to shuffle array (Fisher-Yates algorithm)
-function shuffleArray<T>(array: T[]): T[] {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-}
 
 export default ProductList;
