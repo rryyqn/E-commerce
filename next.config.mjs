@@ -10,6 +10,7 @@ const nextConfig = {
       { protocol: "https", hostname: "www.paypalobjects.com" },
       { protocol: "https", hostname: "cdn.visa.com" },
       { protocol: "https", hostname: "www.mastercard.com" },
+      { protocol: "https", hostname: "lottie.host" },
     ],
   },
 };

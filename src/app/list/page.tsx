@@ -6,6 +6,12 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { Suspense } from "react";
 
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Shop",
+};
+
 const ListPage = async ({ searchParams }: { searchParams: any }) => {
   const wixClient = await wixClientServer();
   const cat = await wixClient.collections.getCollectionBySlug(

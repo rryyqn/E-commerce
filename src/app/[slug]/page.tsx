@@ -12,7 +12,30 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Metadata } from "next";
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Promise<Metadata> {
+  const wixClient = await wixClientServer();
+  const products = await wixClient.products
+    .queryProducts()
+    .eq("slug", params.slug)
+    .find();
 
+  const product = products.items[0];
+
+  if (!product) {
+    return {
+      title: "Product Not Found",
+    };
+  }
+
+  return {
+    title: product.name,
+  };
+}
 const SinglePage = async ({ params }: { params: { slug: string } }) => {
   const wixClient = await wixClientServer();
   const products = await wixClient.products
