@@ -4,20 +4,19 @@ import React from "react";
 import { wixClientServer } from "@/lib/wixClientServer";
 import { products } from "@wix/stores";
 import DOMPurify from "isomorphic-dompurify";
-import Pagination from "./Pagination";
 
 const productPerPage = 8;
 
-const ProductList = async ({
+const ProductListPreview = async ({
   categoryId,
   limit,
   searchParams,
-  shuffle = false, // New parameter to control shuffling
+  randomize = false,
 }: {
   categoryId: string;
   limit?: number;
   searchParams?: any;
-  shuffle?: boolean; // For randomizing product order
+  randomize?: boolean;
 }) => {
   const wixClient = await wixClientServer();
   let productQuery = wixClient.products
@@ -39,7 +38,6 @@ const ProductList = async ({
   if (searchParams?.sort) {
     const [sortType, sortBy] = searchParams.sort.split("-");
 
-    // Only fetch data without sorting - we'll sort it after fetching
     if (sortBy !== "price") {
       if (sortType === "asc") {
         productQuery = productQuery.ascending(sortBy as "lastUpdated");
@@ -49,11 +47,14 @@ const ProductList = async ({
     }
   }
 
-  productQuery = productQuery.limit(limit || productPerPage);
+  if (randomize) {
+    productQuery = productQuery.limit(Math.max(16, limit || productPerPage));
+  } else {
+    productQuery = productQuery.limit(limit || productPerPage);
+  }
 
   const res = await productQuery.find();
 
-  // Filter products based on discounted price if available
   let filteredItems = res.items.filter((product) => {
     const price = product.price?.discountedPrice || product.price?.price;
     if (!price) return false;
@@ -63,7 +64,6 @@ const ProductList = async ({
     );
   });
 
-  // Sort by price if needed (considering discounted prices)
   if (searchParams?.sort) {
     const [sortType, sortBy] = searchParams.sort.split("-");
 
@@ -77,9 +77,9 @@ const ProductList = async ({
     }
   }
 
-  // Shuffle the products if requested
-  if (shuffle) {
+  if (randomize) {
     filteredItems = shuffleArray([...filteredItems]);
+    filteredItems = filteredItems.slice(0, 4);
   }
 
   return (
@@ -139,11 +139,6 @@ const ProductList = async ({
           </Link>
         ))}
       </div>
-      <Pagination
-        currentPage={res.currentPage || 0}
-        hasPrev={res.hasPrev()}
-        hasNext={res.hasNext()}
-      />
     </div>
   );
 };
@@ -157,4 +152,4 @@ function shuffleArray<T>(array: T[]): T[] {
   return array;
 }
 
-export default ProductList;
+export default ProductListPreview;

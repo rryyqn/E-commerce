@@ -35,14 +35,28 @@ const SinglePage = async ({ params }: { params: { slug: string } }) => {
       {/* TEXT */}
       <div className="w-full lg:w-1/2 flex flex-col gap-6">
         <h1 className="text-4xl font-medium">{product.name}</h1>
+        {product.additionalInfoSections?.find(
+          (section) => section.title === "Rating"
+        )?.description && (
+          <div
+            className="flex items-center gap-1 text-gray-600"
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(
+                product.additionalInfoSections.find(
+                  (section) => section.title === "Rating"
+                )?.description || ""
+              ),
+            }}
+          />
+        )}
         {product.price?.price === product.price?.discountedPrice ? (
-          <h2 className="font-medium text-2xl">${product.price?.price}</h2>
+          <h2 className="font-semibold text-2xl">${product.price?.price}</h2>
         ) : (
           <div className="flex items-center gap-4">
             <h3 className="text-lg text-gray-500 line-through">
               ${product.price?.price}
             </h3>
-            <h2 className="font-medium text-2xl">
+            <h2 className="font-semibold text-2xl">
               ${product.price?.discountedPrice}
             </h2>
           </div>
@@ -63,23 +77,28 @@ const SinglePage = async ({ params }: { params: { slug: string } }) => {
           />
         )}
 
-        <Separator decorative />
-
-        {product.additionalInfoSections?.map((section: any) => (
-          <div className="text-sm" key={section.title}>
-            <div
-              className="font-medium mb-2"
-              dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(section.title || ""),
-              }}
-            ></div>
-            <div
-              dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(section.description || ""),
-              }}
-            ></div>
-          </div>
-        ))}
+        <Accordion type="multiple">
+          {product.additionalInfoSections?.map((section: any) => (
+            <AccordionItem value={section.title} key={section.title}>
+              <AccordionTrigger>
+                <div
+                  className="font-medium mb-2"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(section.title || ""),
+                  }}
+                ></div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div
+                  className="[&>ul]:list-disc [&>ul]:ml-6 [&>ul>li]:mt-2 leading-loose"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(section.description || ""),
+                  }}
+                ></div>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
       </div>
     </div>
   );

@@ -11,8 +11,13 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
+import { collections } from "@wix/stores";
 
-const Filter = () => {
+interface FilterProps {
+  categories: collections.Collection[];
+}
+
+const Filter = ({ categories }: FilterProps) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { replace } = useRouter();
@@ -66,9 +71,9 @@ const Filter = () => {
     }
   };
 
-  const handleSelectChange = (value: string, name: string) => {
-    const params = new URLSearchParams(searchParams);
-    params.set(name, value);
+  const handleSelectChange = (value: string, type: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set(type, value);
     replace(`${pathname}?${params.toString()}`);
   };
 
@@ -107,14 +112,23 @@ const Filter = () => {
               <SelectItem value="digital">Digital</SelectItem>
             </SelectContent>
           </Select>
-          <Select onValueChange={(value) => handleSelectChange(value, "cat")}>
-            <SelectTrigger className="w-max">
-              <SelectValue placeholder="Category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="test">Test</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="">
+            <Select onValueChange={(value) => handleSelectChange(value, "cat")}>
+              <SelectTrigger className="w-max">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category) => (
+                  <SelectItem
+                    key={category._id}
+                    value={category.slug || category._id || "all-products"}
+                  >
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         <div className="">
           <Select

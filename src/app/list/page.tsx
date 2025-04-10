@@ -11,6 +11,7 @@ const ListPage = async ({ searchParams }: { searchParams: any }) => {
   const cat = await wixClient.collections.getCollectionBySlug(
     searchParams.cat || "all-products"
   );
+  const categories = await wixClient.collections.queryCollections().find();
 
   return (
     <div className="px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
@@ -32,7 +33,7 @@ const ListPage = async ({ searchParams }: { searchParams: any }) => {
         </div>
       </div>
       {/* FILTER */}
-      <Filter />
+      <Filter categories={categories.items} />
       {/* PRODUCTS */}
       <h1 className="mt-12 text-2xl font-semibold">{cat.collection?.name}</h1>
       <Suspense fallback={"loading"}>
@@ -41,6 +42,7 @@ const ListPage = async ({ searchParams }: { searchParams: any }) => {
             cat.collection?._id || "00000000-000000-000000-000000000001"
           }
           searchParams={searchParams}
+          shuffle={true}
         />
       </Suspense>
     </div>
