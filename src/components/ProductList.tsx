@@ -6,20 +6,23 @@ import { products } from "@wix/stores";
 import DOMPurify from "isomorphic-dompurify";
 import Pagination from "./Pagination";
 
+// Set how many products per page you want to display.
 const productPerPage = 8;
 
 const ProductList = async ({
   categoryId,
   limit,
   searchParams,
-  shuffle = false, // New parameter to control shuffling
+  shuffle = false,
 }: {
   categoryId: string;
   limit?: number;
   searchParams?: any;
-  shuffle?: boolean; // For randomizing product order
+  shuffle?: boolean;
 }) => {
   const wixClient = await wixClientServer();
+
+  // Initialize the product query
   let productQuery = wixClient.products
     .queryProducts()
     .startsWith("name", searchParams?.name || "")
@@ -29,17 +32,11 @@ const ProductList = async ({
       searchParams?.type ? [searchParams.type] : ["physical", "digital"]
     )
     .gt("priceData.price", searchParams?.min || 0)
-    .lt("priceData.price", searchParams?.max || 999999)
-    .skip(
-      searchParams?.page
-        ? parseInt(searchParams.page) * (limit || productPerPage)
-        : 0
-    );
+    .lt("priceData.price", searchParams?.max || 999999);
 
+  // Check if there's a sort parameter
   if (searchParams?.sort) {
     const [sortType, sortBy] = searchParams.sort.split("-");
-
-    // Only fetch data without sorting - we'll sort it after fetching
     if (sortBy !== "price") {
       if (sortType === "asc") {
         productQuery = productQuery.ascending(sortBy as "lastUpdated");
@@ -49,48 +46,65 @@ const ProductList = async ({
     }
   }
 
-  productQuery = productQuery.limit(limit || productPerPage);
+  // Initialize an empty array to hold all products
+  let allProducts: products.Product[] = [];
+  let page = 0;
+  let hasMore = true;
 
-  const res = await productQuery.find();
+  // Fetch products page by page until all pages are fetched
+  while (hasMore) {
+    const res = await productQuery
+      .skip(page * (limit || productPerPage))
+      .limit(limit || productPerPage)
+      .find();
+    allProducts = [...allProducts, ...res.items];
+    hasMore = res.hasNext();
+    page++;
+  }
 
-  // Filter products based on discounted price if available
-  let filteredItems = res.items.filter((product) => {
+  // Filter products based on price range if needed
+  let filteredItems = allProducts.filter((product) => {
     const price = product.price?.discountedPrice || product.price?.price;
-    if (!price) return false;
     return (
-      price >= (searchParams?.min || 0) &&
-      price <= (searchParams?.max || 999999)
+      price! >= (searchParams?.min || 0) &&
+      price! <= (searchParams?.max || 999999)
     );
   });
 
-  // Sort by price if needed (considering discounted prices)
+  // Sort by price if requested
   if (searchParams?.sort) {
     const [sortType, sortBy] = searchParams.sort.split("-");
-
     if (sortBy === "price") {
       filteredItems.sort((a, b) => {
         const priceA = a.price?.discountedPrice || a.price?.price || 0;
         const priceB = b.price?.discountedPrice || b.price?.price || 0;
-
         return sortType === "asc" ? priceA - priceB : priceB - priceA;
       });
     }
   }
 
-  // Shuffle the products if requested
+  // Shuffle if the shuffle flag is true
   if (shuffle) {
-    filteredItems = shuffleArray([...filteredItems]);
+    filteredItems = shuffleArray(filteredItems);
   }
 
+  // Manual pagination
+  const currentPage = searchParams?.page ? parseInt(searchParams.page) : 0;
+  const itemsPerPage = limit || productPerPage;
+  const paginatedItems = filteredItems.slice(
+    currentPage * itemsPerPage,
+    (currentPage + 1) * itemsPerPage
+  );
+
   return (
-    <div className="mt-12">
-      {filteredItems.length === 0 && (
+    <div className="sm:mt-12 mt-6">
+      {paginatedItems.length === 0 && (
         <h1 className="flex justify-center font-semibold text-xl">
           No products found
         </h1>
       )}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
-        {filteredItems.map((product: products.Product) => (
+        {paginatedItems.map((product: products.Product) => (
           <Link
             href={"/" + product.slug}
             className="flex flex-col gap-4"
@@ -140,9 +154,9 @@ const ProductList = async ({
         ))}
       </div>
       <Pagination
-        currentPage={res.currentPage || 0}
-        hasPrev={res.hasPrev()}
-        hasNext={res.hasNext()}
+        currentPage={currentPage}
+        hasPrev={currentPage > 0}
+        hasNext={(currentPage + 1) * itemsPerPage < filteredItems.length}
       />
     </div>
   );

@@ -78,7 +78,7 @@ const Filter = ({ categories }: FilterProps) => {
   };
 
   return (
-    <div className="mt-12 flex flex-col">
+    <div className="sm:mt-12 mt-0 flex flex-col">
       <div className="flex justify-between">
         <div className="flex items-center gap-2 md:gap-6 flex-wrap">
           <div className="border shadow-sm border-gray-200 rounded-md flex items-center gap-1 justify-center flex-row px-4 box-border h-[36px]">

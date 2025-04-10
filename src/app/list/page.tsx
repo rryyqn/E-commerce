@@ -22,7 +22,7 @@ const ListPage = async ({ searchParams }: { searchParams: any }) => {
   return (
     <div className="px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
       {/* CAMPAIGN */}
-      <div className="bg-pink-50 px-4 flex flex-col-reverse md:flex-row justify-between md:h-64 rounded-xl">
+      <div className="bg-pink-50 px-4 sm:flex flex-col-reverse md:flex-row justify-between md:h-64 rounded-xl hidden">
         <div className="w-full md:w-2/3 flex flex-col items-center justify-center gap-4 p-8">
           <h1 className="text-2xl sm:text-3xl lg:text-5xl font-semibold leading-[48px] text-gray-700 text-center -mb-2">
             Get up to 50% off on <br /> Featured Products
@@ -41,7 +41,9 @@ const ListPage = async ({ searchParams }: { searchParams: any }) => {
       {/* FILTER */}
       <Filter categories={categories.items} />
       {/* PRODUCTS */}
-      <h1 className="mt-12 text-2xl font-semibold">{cat.collection?.name}</h1>
+      <h1 className="sm:mt-12 mt-6 text-2xl font-semibold">
+        {cat.collection?.name}
+      </h1>
       <Suspense fallback={"loading"}>
         <ProductList
           categoryId={

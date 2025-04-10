@@ -15,26 +15,12 @@ const CartModal = () => {
   const wixClient = useWixClient();
   const { cart, isLoading, removeItem } = useCartStore();
 
-  const [quantity, setQuantity] = useState(1);
-
-  //TEMPORARY
-  const stock = 4;
-
-  const handleQuantity = (type: "inc" | "dec") => {
-    if (type === "dec" && quantity > 1) {
-      setQuantity((prev) => prev - 1);
-    }
-    if (type === "inc" && quantity < stock) {
-      setQuantity((prev) => prev + 1);
-    }
-  };
-
   const handleCheckout = () => {
     router.push("/checkout");
   };
 
   return (
-    <div className="max-w-96 rounded-md bg-white top-12 right-0 flex flex-col gap-6">
+    <div className="rounded-md bg-white top-12 right-0 flex flex-col gap-6">
       <CardHeader>
         <CardTitle>
           <h2 className="text-xl">Shopping Cart</h2>
