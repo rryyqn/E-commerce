@@ -34,7 +34,7 @@ const CartModal = () => {
   };
 
   return (
-    <div className="w-max rounded-md bg-white top-12 right-0 flex flex-col gap-6">
+    <div className="max-w-96 rounded-md bg-white top-12 right-0 flex flex-col gap-6">
       <CardHeader>
         <CardTitle>
           <h2 className="text-xl">Shopping Cart</h2>
@@ -48,7 +48,7 @@ const CartModal = () => {
         ) : (
           <>
             {cart.lineItems?.map((item) => (
-              <div className="flex gap-4" key={item._id}>
+              <div className="flex gap-4 w-full overflow-hidden" key={item._id}>
                 {item.image && (
                   <Image
                     src={wixMedia.getScaledToFillImageUrl(
@@ -63,15 +63,15 @@ const CartModal = () => {
                     className="object-cover rounded-md"
                   />
                 )}
-                <div className="flex flex-col justify-between w-full">
+                <div className="flex flex-col justify-between w-full overflow-hidden">
                   {/* TOP */}
                   <div>
                     {/* TITLE */}
-                    <div className="flex items-center justify-between gap-8">
-                      <h3 className="font-semibold">
+                    <div className="flex items-center justify-between gap-4 w-full">
+                      <h3 className="font-semibold truncate max-w-[140px] overflow-hidden text-ellipsis whitespace-nowrap">
                         {item.productName?.original}
                       </h3>
-                      <div className="rounded-sm font-semibold flex items-center">
+                      <div className="rounded-sm font-semibold flex items-center shrink-0 whitespace-nowrap">
                         {item.quantity && item.quantity > 1 && (
                           <span className="text-gray-500 font-normal flex items-center">
                             {item.quantity} <X className="h-4 w-4" />{" "}

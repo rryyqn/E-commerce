@@ -2,7 +2,7 @@
 
 "use client";
 
-import * as animationData from "../../public/CheckAnimation.json";
+import * as animationData from "@/components/CheckAnimation.json";
 import { useLottie } from "lottie-react";
 
 const MyLottieComponent = () => {

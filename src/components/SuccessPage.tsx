@@ -2,7 +2,6 @@
 
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,8 +20,8 @@ export default function SuccessPage() {
   const total = searchParams.get("total") || "0.00";
   const address = searchParams.get("address") || "";
 
-  const [orderID] = useState(
-    () => Math.floor(1468076 + Math.random() * 920304540) // 6-digit ID
+  const [orderID] = useState(() =>
+    Math.floor(1468076 + Math.random() * 920304540)
   );
   return (
     <div className="container mx-auto px-4 md:px-6 flex flex-col items-center">

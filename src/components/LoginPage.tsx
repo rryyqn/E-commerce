@@ -165,6 +165,7 @@ const LoginPage = () => {
             <Input
               type="text"
               name="name"
+              required
               placeholder="Name"
               className="rounded-md p-4"
               onChange={(e) => setName(e.target.value)}
@@ -176,6 +177,7 @@ const LoginPage = () => {
             <Label className="text-sm text-gray-700">Email</Label>
             <Input
               type="email"
+              required
               name="email"
               placeholder="Email"
               className="rounded-md p-4"
@@ -187,6 +189,7 @@ const LoginPage = () => {
             <Label className="text-sm text-gray-700">Verification Code</Label>
             <Input
               type="text"
+              required
               name="emailCode"
               placeholder="Verification Code"
               className="rounded-md p-4"
@@ -199,6 +202,7 @@ const LoginPage = () => {
             <Label className="text-sm text-gray-700">Password</Label>
             <Input
               type="password"
+              required
               name="password"
               placeholder="Password"
               className="rounded-md p-4"
