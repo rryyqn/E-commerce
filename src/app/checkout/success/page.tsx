@@ -6,6 +6,8 @@ export const metadata: Metadata = {
   title: "Order Confirmed!",
 };
 
+export const dynamic = "force-dynamic";
+
 const page = () => {
   return <SuccessPage />;
 };
